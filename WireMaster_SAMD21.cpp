@@ -1,5 +1,5 @@
 //
-// Wire Master - Feather M0
+// Wire Master - SAM D21
 // ---------------------------------------------------------------------------
 // (c)2018 by Lucky Resistor. See LICENSE for details.
 //
@@ -17,13 +17,12 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "WireMaster_FeatherM0.hpp"
+#include "WireMaster_SAMD21.hpp"
 
 
+#include "GPIO_SAMD21.hpp"
 #include "Timer.hpp"
 #include "StatusTools.hpp"
-
-#include <wiring_private.h>
 
 
 namespace lr {
@@ -218,7 +217,7 @@ inline WireMaster::Status sendCommand(Sercom *sercom, Command command)
 }
 
 
-WireMaster_FeatherM0::WireMaster_FeatherM0(Interface interface, uint8_t pinSDA, uint8_t pinSCL)
+WireMaster_SAMD21::WireMaster_SAMD21(Interface interface, GPIO::PinNumber pinSDA, GPIO::PinNumber pinSCL)
 :
     WireMaster(),
     _interface(interface),
@@ -231,33 +230,33 @@ WireMaster_FeatherM0::WireMaster_FeatherM0(Interface interface, uint8_t pinSDA, 
     default:
     case Interface::SerCom0:
     case Interface::SerCom0Alt:
-        _sercom = SERCOM0;
+        _sercom = chip::gSercom0;
         break;
     case Interface::SerCom1:
     case Interface::SerCom1Alt:
-        _sercom = SERCOM1;
+        _sercom = chip::gSercom1;
         break;
     case Interface::SerCom2:
     case Interface::SerCom2Alt:
-        _sercom = SERCOM2;
+        _sercom = chip::gSercom2;
         break;
     case Interface::SerCom3:
     case Interface::SerCom3Alt:
-        _sercom = SERCOM3;
+        _sercom = chip::gSercom3;
         break;
     case Interface::SerCom4:
     case Interface::SerCom4Alt:
-        _sercom = SERCOM4;
+        _sercom = chip::gSercom4;
         break;
     case Interface::SerCom5:
     case Interface::SerCom5Alt:
-        _sercom = SERCOM5;
+        _sercom = chip::gSercom5;
         break;
     }
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::initialize()
+WireMaster_SAMD21::Status WireMaster_SAMD21::initialize()
 {
     // Enable the clock for the SERCOM interface.
     uint8_t clockId;
@@ -314,8 +313,8 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::initialize()
     case Interface::SerCom3:
     case Interface::SerCom4:
     case Interface::SerCom5:
-        pinPeripheral(_pinSDA, PIO_SERCOM);
-        pinPeripheral(_pinSCL, PIO_SERCOM);
+        GPIO::setFunction(_pinSDA, GPIO::Function::Sercom);
+        GPIO::setFunction(_pinSCL, GPIO::Function::Sercom);
         break;
     case Interface::SerCom0Alt:
     case Interface::SerCom1Alt:
@@ -323,15 +322,15 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::initialize()
     case Interface::SerCom3Alt:
     case Interface::SerCom4Alt:
     case Interface::SerCom5Alt:
-        pinPeripheral(_pinSDA, PIO_SERCOM_ALT);
-        pinPeripheral(_pinSCL, PIO_SERCOM_ALT);
+        GPIO::setFunction(_pinSDA, GPIO::Function::SercomAlt);
+        GPIO::setFunction(_pinSCL, GPIO::Function::SercomAlt);
         break;
     }
     return Status::Success;
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::reset()
+WireMaster_SAMD21::Status WireMaster_SAMD21::reset()
 {
     // Start the software reset.
     _sercom->I2CM.CTRLA.bit.SWRST = 1;
@@ -376,7 +375,7 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::reset()
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::setSpeed(Speed speed)
+WireMaster_SAMD21::Status WireMaster_SAMD21::setSpeed(Speed speed)
 {
     uint32_t frequencyHz;
     switch (speed) {
@@ -391,7 +390,7 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::setSpeed(Speed speed)
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::setSpeed(uint32_t frequencyHz)
+WireMaster_SAMD21::Status WireMaster_SAMD21::setSpeed(uint32_t frequencyHz)
 {
     // Ignore calls which do not actually change the frequency.
     if (_speed == frequencyHz) {
@@ -433,7 +432,7 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::setSpeed(uint32_t frequencyHz
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeBegin(uint8_t address)
+WireMaster_SAMD21::Status WireMaster_SAMD21::writeBegin(uint8_t address)
 {
     WireMaster::Status status;
     // The data byte is 7bit address + bit 1 = 0 for write.
@@ -457,7 +456,7 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeBegin(uint8_t address)
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeByte(uint8_t data)
+WireMaster_SAMD21::Status WireMaster_SAMD21::writeByte(uint8_t data)
 {
     WireMaster::Status status;
     // Prepare the data byte to send.
@@ -476,7 +475,7 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeByte(uint8_t data)
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeEndAndStop()
+WireMaster_SAMD21::Status WireMaster_SAMD21::writeEndAndStop()
 {
     WireMaster::Status status;
     // Send a stop condition.
@@ -487,7 +486,7 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeEndAndStop()
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeEndAndStart()
+WireMaster_SAMD21::Status WireMaster_SAMD21::writeEndAndStart()
 {
     WireMaster::Status status;
     // Send repeated start condition.
@@ -496,7 +495,7 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeEndAndStart()
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeBytes(uint8_t address, const uint8_t *data, uint8_t count)
+WireMaster_SAMD21::Status WireMaster_SAMD21::writeBytes(uint8_t address, const uint8_t *data, uint8_t count)
 {
     WireMaster::Status status;
     // Check the parameter.
@@ -512,7 +511,7 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeBytes(uint8_t address, c
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeRegisterData(uint8_t address, uint8_t registerAddress, uint8_t data)
+WireMaster_SAMD21::Status WireMaster_SAMD21::writeRegisterData(uint8_t address, uint8_t registerAddress, uint8_t data)
 {
     WireMaster::Status status;
     // Start the write with the address.
@@ -526,7 +525,7 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeRegisterData(uint8_t add
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeRegisterData(uint8_t address, uint8_t registerAddress, const uint8_t *data, uint8_t count)
+WireMaster_SAMD21::Status WireMaster_SAMD21::writeRegisterData(uint8_t address, uint8_t registerAddress, const uint8_t *data, uint8_t count)
 {
     WireMaster::Status status;
     // Check the parameter.
@@ -541,7 +540,7 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::writeRegisterData(uint8_t add
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::readBytes(uint8_t address, uint8_t *data, uint8_t count)
+WireMaster_SAMD21::Status WireMaster_SAMD21::readBytes(uint8_t address, uint8_t *data, uint8_t count)
 {
     WireMaster::Status status;
     // Check the parameter.
@@ -590,7 +589,7 @@ WireMaster_FeatherM0::Status WireMaster_FeatherM0::readBytes(uint8_t address, ui
 }
 
 
-WireMaster_FeatherM0::Status WireMaster_FeatherM0::readRegisterData(uint8_t address, uint8_t registerAddress, uint8_t *data, uint8_t count)
+WireMaster_SAMD21::Status WireMaster_SAMD21::readRegisterData(uint8_t address, uint8_t registerAddress, uint8_t *data, uint8_t count)
 {
     WireMaster::Status status;
     // Start writing an address.

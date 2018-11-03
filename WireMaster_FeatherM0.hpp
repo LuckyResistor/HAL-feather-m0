@@ -18,86 +18,86 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include <Arduino.h>
 
 
-#include "Chip.hpp"
-#include "WireMaster.hpp"
+#include "GPIO_FeatherM0.hpp"
+#include "WireMaster_SAMD21.hpp"
 
 
 namespace lr {
-
-
-/// A rock solid I2C implementation for Feather M0/SAM D21 chips.
+    
+    
+/// A rock solid I2C implementation for SAM D21 chips.
 ///
-/// This should be a more reliable replacement for the Wire library.
-/// The main difference is the correct error handling and the possibility
-/// to reset the I2C interface in case of any problems.
+/// This provides all valid configurations for the Adafruit Feather M0 platform.
 ///
-/// You must not use the original Wire library if you use this version
-/// of the I2C interface.
+/// @note Each SERCOM can only be used once!
 ///
-class WireMaster_FeatherM0 : public WireMaster
+class WireMaster_FeatherM0 : public WireMaster_SAMD21
 {
 public:
-    /// The SERCOM interface to use.
+    /// The setup for the bus.
     ///
-    enum class Interface : uint8_t {
-        SerCom0     = 0x00, ///< Use SERCOM0 default pin configuration
-        SerCom0Alt  = 0x10, ///< Use SERCOM0 alternative pin configuration
-        SerCom1     = 0x01, ///< Use SERCOM1 default pin configuration
-        SerCom1Alt  = 0x11, ///< Use SERCOM1 alternative pin configuration
-        SerCom2     = 0x02, ///< Use SERCOM2 default pin configuration
-        SerCom2Alt  = 0x12, ///< Use SERCOM2 alternative pin configuration
-        SerCom3     = 0x03, ///< Use SERCOM3 default pin configuration
-        SerCom3Alt  = 0x13, ///< Use SERCOM3 alternative pin configuration
-        SerCom4     = 0x04, ///< Use SERCOM4 default pin configuration
-        SerCom4Alt  = 0x14, ///< Use SERCOM4 alternative pin configuration
-        SerCom5     = 0x05, ///< Use SERCOM5 default pin configuration
-        SerCom5Alt  = 0x15, ///< Use SERCOM5 alternative pin configuration
+    enum class Setup {
+        A1_A2, ///< A1 = SDA, A2 = SCL, SERCOM0.
+        A3_A4, ///< A3 = SDA, A4 = SCL, SERCOM4.
+        P11_P13_1, ///< 11 = SDA, 13 = SCL, SERCOM1.
+        P11_P13_3, ///< 11 = SDA, 13 = SCL, SERCOM3.
+        SDA_SCL_3, ///< SDA = SDA, SCL = SCL, SERCOM3.
+        SDA_SCL_5, ///< SDA = SDA, SCL = SCL, SERCOM5.
+        Default = SDA_SCL_3, ///< The default bus.
     };
+    
+private:
+    static inline Interface getInterfaceForSetup(const Setup setup)
+    {
+        switch (setup) {
+        case Setup::A1_A2: return Interface::SerCom4Alt;
+        case Setup::A3_A4: return Interface::SerCom0Alt;
+        case Setup::P11_P13_1: return Interface::SerCom1;
+        case Setup::P11_P13_3: return Interface::SerCom3Alt;
+        case Setup::SDA_SCL_5: return Interface::SerCom5Alt;
+        default:
+            break;
+        }
+        return Interface::SerCom3;
+    }
+
+    static inline GPIO::PinNumber getSdaPinForSetup(const Setup setup)
+    {
+        switch (setup) {
+        case Setup::A1_A2: return static_cast<GPIO::PinNumber>(GPIO::Port::PB08);
+        case Setup::A3_A4: return static_cast<GPIO::PinNumber>(GPIO::Port::PA04);
+        case Setup::P11_P13_1: return static_cast<GPIO::PinNumber>(GPIO::Port::PA16);
+        case Setup::P11_P13_3: return static_cast<GPIO::PinNumber>(GPIO::Port::PA16);
+        case Setup::SDA_SCL_5: return static_cast<GPIO::PinNumber>(GPIO::Port::PA22);
+        default:
+            break;
+        }
+        return static_cast<GPIO::PinNumber>(GPIO::FeatherM0::SDA);
+    }
+
+    static inline GPIO::PinNumber getSclPinForSetup(const Setup setup)
+    {
+        switch (setup) {
+        case Setup::A1_A2: return static_cast<GPIO::PinNumber>(GPIO::Port::PB09);
+        case Setup::A3_A4: return static_cast<GPIO::PinNumber>(GPIO::Port::PA05);
+        case Setup::P11_P13_1: return static_cast<GPIO::PinNumber>(GPIO::Port::PA17);
+        case Setup::P11_P13_3: return static_cast<GPIO::PinNumber>(GPIO::Port::PA17);
+        case Setup::SDA_SCL_5: return static_cast<GPIO::PinNumber>(GPIO::Port::PA23);
+        default:
+            break;
+        }
+        return static_cast<GPIO::PinNumber>(GPIO::FeatherM0::SCL);
+    }
 
 public:
-    /// Create a new I2C interface instance.
-    ///
-    /// Not all SERCOM interfaces can be used with the Feather M0.
-    /// See the datasheet for valid combinations of pins and interfaces.
-    /// You have to use the Arduino pin numbers for the configuration.
-    ///
-    /// Use the following line to use the default I2C interface:
-    /// `WireMaster_FeatherM0 gWire(WireMaster_FeatherM0::Interface::Com3, SDA, SCL);`
-    ///
-    /// @param interface The SERCOM inerface to use.
-    /// @param pinSDA The arduino pin number for the used SDA pin.
-    /// @param pinSCL The arduino pin number for the used SCL pin.
-    ///
-    WireMaster_FeatherM0(Interface interface, uint8_t pinSDA, uint8_t pinSCL);
-
-public: // Implement the WireMaster interface.
-    Status initialize() override;
-    Status reset() override;
-    Status setSpeed(Speed speed) override;
-    Status setSpeed(uint32_t frequencyHz) override;
-    Status writeBegin(uint8_t address) override;
-    Status writeByte(uint8_t data) override;
-    Status writeEndAndStop() override;
-    Status writeEndAndStart() override;
-    Status writeBytes(uint8_t address, const uint8_t *data, uint8_t count) override;
-    Status writeRegisterData(uint8_t address, uint8_t registerAddress, uint8_t data) override;
-    Status writeRegisterData(uint8_t address, uint8_t registerAddress, const uint8_t *data, uint8_t count) override;
-    Status readBytes(uint8_t address, uint8_t *data, uint8_t count) override;
-    Status readRegisterData(uint8_t address, uint8_t registerAddress, uint8_t *data, uint8_t count) override;
-
-private:
-    const Interface _interface; ///< The interface to use.
-    Sercom* _sercom; ///< The link to the low level SERCOM interface.
-    const uint8_t _pinSDA; ///< The arduino pin number for the SDA pin.
-    const uint8_t _pinSCL; ///< The arduino pin number for the SCL pin.
-    uint32_t _speed; ///< The current speed.
+    inline WireMaster_FeatherM0(const Setup setup = Setup::Default)
+        : WireMaster_SAMD21(getInterfaceForSetup(setup), getSdaPinForSetup(setup), getSclPinForSetup(setup))
+    {
+    }
 };
 
-
+    
 }
-
-
 
