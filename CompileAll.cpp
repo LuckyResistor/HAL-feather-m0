@@ -1,0 +1,6 @@
+#include "Fixed16.cpp"
+#include "GPIO_Arduino.cpp"
+#include "InterruptLock_Arduino.cpp"
+#include "String.cpp"
+#include "Timer_Arduino.cpp"
+#include "WireMaster_FeatherM0.cpp"
