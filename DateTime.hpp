@@ -19,6 +19,8 @@
 //
 
 
+#include "String.hpp"
+
 #include <cstdint>
 
 

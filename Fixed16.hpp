@@ -86,12 +86,12 @@ public: // Comparators
 	bool operator>(const Fixed16 &other) const noexcept;
 
 public: // Constants
-	static constexpr Fixed16 one() noexcept { return Fixed16(static_cast<Type>(0x00010000UL)); }
-	static constexpr Fixed16 pi() noexcept { return Fixed16(static_cast<Type>(205887UL)); }
-	static constexpr Fixed16 e() noexcept { return Fixed16(static_cast<Type>(178145UL)); }
-	static constexpr Fixed16 minimum() noexcept { return Fixed16(static_cast<Type>(0x80000000UL)); }
-	static constexpr Fixed16 maximum() noexcept { return Fixed16(static_cast<Type>(0x7FFFFFFFUL)); }
-	static constexpr Fixed16 overflow() noexcept { return Fixed16(static_cast<Type>(0x80000000UL)); }
+	static inline Fixed16 one() noexcept { return Fixed16(static_cast<Type>(0x00010000UL)); }
+	static inline Fixed16 pi() noexcept { return Fixed16(static_cast<Type>(205887UL)); }
+	static inline Fixed16 e() noexcept { return Fixed16(static_cast<Type>(178145UL)); }
+	static inline Fixed16 minimum() noexcept { return Fixed16(static_cast<Type>(0x80000000UL)); }
+	static inline Fixed16 maximum() noexcept { return Fixed16(static_cast<Type>(0x7FFFFFFFUL)); }
+	static inline Fixed16 overflow() noexcept { return Fixed16(static_cast<Type>(0x80000000UL)); }
 
 public: // Checks
 	/// Check if this value is zero

@@ -19,18 +19,12 @@
 #include "DateTime.hpp"
 
 
-#undef max
-#undef min
-#include <algorithm>
-#include <tuple>
-
-
 namespace lr {
   
     
 namespace {
-
     
+
 // The number of days per month.
 static const uint8_t cDaysPerMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
@@ -46,17 +40,7 @@ static const uint16_t cSecondsPerMinute = 60;
 // The number of days for a regular year.
 static const uint32_t cDaysPerNormalYear = 365;
     
-// Various output formats for the sprintf function.
-static const char cStringFormatISO[] = "%04d-%02d-%02dT%02d:%02d:%02d"; // yyyy-MM-ddThh:mm:ss
-static const char cStringFormatLong[] = "%04d-%02d-%02d %02d:%02d:%02d"; // yyyy-MM-dd hh:mm:ss
-static const char cStringFormatISODate[] = "%04d-%02d-%02d"; // yyyy-MM-dd
-static const char cStringFormatISOBasicDate[] = "%04d%02d%02d"; // yyyyMMdd
-static const char cStringFormatISOTime[] = "%02d:%02d:%02d"; // hh:mm:ss
-static const char cStringFormatISOBasicTime[] = "%02d%02d%02d"; // hhmmss
-static const char cStringFormatShortDate[] = "%02d.%02d."; // dd.MM.
-static const char cStringFormatShortTime[] = "%02d:%02d"; // hh:mm
 
-    
 // Calculate the day of the week.
 // Using the formula from: http://www.tondering.dk/claus/cal/chrweek.php
 static uint8_t calculateDayOfWeek(int16_t year, int16_t month, int16_t day)
@@ -95,7 +79,7 @@ static inline uint32_t getDaysForYear(uint16_t year)
 
     
 }
- 
+    
     
 DateTime::DateTime()
     : _year(2000), _month(1), _day(1), _hour(0), _minute(0), _second(0), _dayOfWeek(6)
@@ -357,34 +341,64 @@ bool DateTime::isFirst() const
     
 String DateTime::toString(Format format) const
 {
-    char buffer[20]; // longest format.
+    String result;
+    result.reserve(20); // longest format.
     switch (format) {
         case Format::ISO:
-            sprintf_P(buffer, cStringFormatISO, _year, _month, _day, _hour, _minute, _second);
-            break;
         case Format::Long:
-            sprintf_P(buffer, cStringFormatLong, _year, _month, _day, _hour, _minute, _second);
+            result.appendNumber(_year, 4, '0');
+            result.append('-');
+            result.appendNumber(_month, 2, '0');
+            result.append('-');
+            result.appendNumber(_day, 2, '0');
+            if (format == Format::ISO) {
+                result.append('T');
+            } else {
+                result.append(' ');
+            }
+            result.appendNumber(_hour, 2, '0');
+            result.append(':');
+            result.appendNumber(_minute, 2, '0');
+            result.append(':');
+            result.appendNumber(_second, 2, '0');
             break;
         case Format::ISODate:
-            sprintf_P(buffer, cStringFormatISODate, _year, _month, _day);
+            result.appendNumber(_year, 4, '0');
+            result.append('-');
+            result.appendNumber(_month, 2, '0');
+            result.append('-');
+            result.appendNumber(_day, 2, '0');
             break;
         case Format::ISOBasicDate:
-            sprintf_P(buffer, cStringFormatISOBasicDate, _year, _month, _day);
+            result.appendNumber(_year, 4, '0');
+            result.appendNumber(_month, 2, '0');
+            result.appendNumber(_day, 2, '0');
             break;
         case Format::ISOTime:
-            sprintf_P(buffer, cStringFormatISOTime, _hour, _minute, _second);
+            result.appendNumber(_hour, 2, '0');
+            result.append(':');
+            result.appendNumber(_minute, 2, '0');
+            result.append(':');
+            result.appendNumber(_second, 2, '0');
             break;
         case Format::ISOBasicTime:
-            sprintf_P(buffer, cStringFormatISOBasicTime, _hour, _minute, _second);
+            result.appendNumber(_hour, 2, '0');
+            result.appendNumber(_minute, 2, '0');
+            result.appendNumber(_second, 2, '0');
             break;
         case Format::ShortDate:
-            sprintf_P(buffer, cStringFormatShortDate, _day, _month);
+            result.appendNumber(_day, 2, '0');
+            result.append('.');
+            result.appendNumber(_month, 2, '0');
+            result.append('.');
             break;
         case Format::ShortTime:
-            sprintf_P(buffer, cStringFormatShortTime, _hour, _minute);
+            result.appendNumber(_hour, 2, '0');
+            result.append(':');
+            result.appendNumber(_minute, 2, '0');
             break;
     }
-    return String(buffer);
+    return result;
 }
 
     

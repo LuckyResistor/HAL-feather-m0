@@ -30,26 +30,26 @@ namespace GPIO {
 /// The pin names of the feather M0 board.
 ///
 enum class FeatherM0 : PinNumber {
-    A0 = Port::PA02,
-    A1 = Port::PB08,
-    A2 = Port::PB09,
-    A3 = Port::PA04,
-    A4 = Port::PA05,
-    A5 = Port::PB02,
-    SCK = Port::PB11,
-    MOSI = Port::PB10,
-    MISO = Port::PA12,
-    RX = Port::PA11,
-    TX = Port::PA10,
-    SDA = Port::PA22,
-    SCL = Port::PA23,
-    P5 = Port::PA15,
-    P6 = Port::PA20,
-    P9 = Port::PA07,
-    P10 = Port::PA18,
-    P11 = Port::PA16,
-    P12 = Port::PA19,
-    P13 = Port::PA17
+    A0 = static_cast<PinNumber>(Port::PA02),
+    A1 = static_cast<PinNumber>(Port::PB08),
+    A2 = static_cast<PinNumber>(Port::PB09),
+    A3 = static_cast<PinNumber>(Port::PA04),
+    A4 = static_cast<PinNumber>(Port::PA05),
+    A5 = static_cast<PinNumber>(Port::PB02),
+    SCK = static_cast<PinNumber>(Port::PB11),
+    MOSI = static_cast<PinNumber>(Port::PB10),
+    MISO = static_cast<PinNumber>(Port::PA12),
+    RX = static_cast<PinNumber>(Port::PA11),
+    TX = static_cast<PinNumber>(Port::PA10),
+    SDA = static_cast<PinNumber>(Port::PA22),
+    SCL = static_cast<PinNumber>(Port::PA23),
+    P5 = static_cast<PinNumber>(Port::PA15),
+    P6 = static_cast<PinNumber>(Port::PA20),
+    P9 = static_cast<PinNumber>(Port::PA07),
+    P10 = static_cast<PinNumber>(Port::PA18),
+    P11 = static_cast<PinNumber>(Port::PA16),
+    P12 = static_cast<PinNumber>(Port::PA19),
+    P13 = static_cast<PinNumber>(Port::PA17)
 };
 
     

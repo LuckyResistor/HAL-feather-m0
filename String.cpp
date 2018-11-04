@@ -307,5 +307,264 @@ void String::squeeze() noexcept
 }
 
 
+namespace {
+
+    
+/// Helper function to convert a value into a hex string.
+///
+template<typename Type, uint8_t digitCount>
+String String_hex(Type value) noexcept
+{
+    String result;
+    result.reserve(digitCount);
+    for (uint8_t i = 0; i < digitCount; ++i) {
+        const auto nibble = static_cast<uint8_t>(value >> ((digitCount-1)*4));
+        result.append(String::getHexDigit(nibble));
+        value <<= 4;
+    }
+    return result;
+}
+
+
+/// Helper function to append a value as hex string.
+///
+template<typename Type, uint8_t digitCount>
+void String_appendHex(String &str, Type value) noexcept
+{
+    for (uint8_t i = 0; i < digitCount; ++i) {
+        const auto nibble = static_cast<uint8_t>(value >> ((digitCount-1)*4));
+        str.append(String::getHexDigit(nibble));
+        value <<= 4;
+    }
+}
+
+    
+/// Helper function to convert a value into a binary string.
+///
+template<typename Type, uint8_t digitCount>
+String String_bin(Type value) noexcept
+{
+    String result;
+    result.reserve(digitCount);
+    for (uint8_t i = 0; i < digitCount; ++i) {
+        if ((value & (static_cast<Type>(1)<<(digitCount-1))) != 0) {
+            result.append('1');
+        } else {
+            result.append('0');
+        }
+        value <<= 1;
+    }
+    return result;
+}
+
+    
+/// Helper function to append a value as binary string.
+///
+template<typename Type, uint8_t digitCount>
+void String_appendBin(String &str, Type value) noexcept
+{
+    for (uint8_t i = 0; i < digitCount; ++i) {
+        if ((value & (static_cast<Type>(1)<<(digitCount-1))) != 0) {
+            str.append('1');
+        } else {
+            str.append('0');
+        }
+        value <<= 1;
+    }
+}
+
+    
+/// Prepare decimal digits, in reverse order.
+///
+inline uint8_t String_prepareDigits(char *digits, uint32_t value) noexcept
+{
+    uint8_t digitCount = 0;
+    if (value == 0) {
+        digits[0] = '0';
+        digitCount = 1;
+    } else {
+        while (value != 0) {
+            const uint8_t index = (value % 10);
+            value /= 10;
+            digits[digitCount] = ('0' + index);
+            digitCount += 1;
+        }
+    }
+    return digitCount;
+}
+
+    
+/// Align the prepared digits, with padding and in the correct order.
+///
+inline void String_alignNumber(String &str, const char *digits, const uint8_t digitCount, const uint8_t width, const char fillChar)
+{
+    for (uint8_t i = 0; i < (width-digitCount); ++i) {
+        str.append(fillChar);
+    }
+    if (width >= digitCount) {
+        for (int8_t i = digitCount-1; i >= 0; --i) {
+            str.append(digits[i]);
+        }
+    } else {
+        const int8_t dropCount = (digitCount-width);
+        for (int8_t i = digitCount-1; i >= dropCount; --i) {
+            str.append(digits[i]);
+        }
+    }
+}
+
+    
+/// Create a string with the aligned digits.
+///
+inline String String_createNumber(const char *digits, const uint8_t digitCount, const uint8_t width, const char fillChar)
+{
+    String result;
+    result.reserve(width);
+    String_alignNumber(result, digits, digitCount, width, fillChar);
+    return result;
+}
+
+
+}
+    
+    
+String String::hex(uint8_t value) noexcept
+{
+    return String_hex<uint8_t, 2>(value);
+}
+
+    
+String String::hex(uint16_t value) noexcept
+{
+    return String_hex<uint16_t, 4>(value);
+}
+
+    
+String String::hex(uint32_t value) noexcept
+{
+    return String_hex<uint32_t, 8>(value);
+}
+
+    
+String String::number(uint32_t value, uint8_t width, char fillChar) noexcept
+{
+    // Prepare all required digits.
+    char digits[11];
+    const auto digitCount = String_prepareDigits(digits, value);
+    if (width == 0) {
+        width = digitCount;
+    }
+    // Create the aligned string.
+    return String_createNumber(digits, digitCount, width, fillChar);
+}
+
+    
+String String::number(int32_t value, uint8_t width, char fillChar) noexcept
+{
+    // Prepare all required digits.
+    char digits[12];
+    uint8_t digitCount;
+    if (value < 0) {
+        digitCount = String_prepareDigits(digits, value * -1);
+        digits[digitCount] = '-';
+        digitCount += 1;
+    } else {
+        digitCount = String_prepareDigits(digits, value);
+    }
+    if (width == 0) {
+        width = digitCount;
+    }
+    // Create the aligned string.
+    return String_createNumber(digits, digitCount, width, fillChar);
+}
+
+                      
+String String::bin(uint8_t value) noexcept
+{
+    return String_bin<uint8_t, 8>(value);
+}
+
+                      
+String String::bin(uint16_t value) noexcept
+{
+    return String_bin<uint16_t, 16>(value);
+}
+
+                      
+String String::bin(uint32_t value) noexcept
+{
+    return String_bin<uint32_t, 32>(value);
+}
+
+    
+void String::appendHex(uint8_t value) noexcept
+{
+    String_appendHex<uint8_t, 2>(*this, value);
+}
+
+
+void String::appendHex(uint16_t value) noexcept
+{
+    String_appendHex<uint16_t, 4>(*this, value);
+}
+
+    
+void String::appendHex(uint32_t value) noexcept
+{
+    String_appendHex<uint32_t, 8>(*this, value);
+}
+
+    
+void String::appendBin(uint8_t value) noexcept
+{
+    String_appendBin<uint8_t, 8>(*this, value);
+}
+
+    
+void String::appendBin(uint16_t value) noexcept
+{
+    String_appendBin<uint16_t, 16>(*this, value);
+}
+
+    
+void String::appendBin(uint32_t value) noexcept
+{
+    String_appendBin<uint32_t, 32>(*this, value);
+}
+
+    
+void String::appendNumber(uint32_t value, uint8_t width, char fillChar) noexcept
+{
+    // Prepare all required digits.
+    char digits[11];
+    const auto digitCount = String_prepareDigits(digits, value);
+    if (width == 0) {
+        width = digitCount;
+    }
+    // Append the aligned string.
+    String_alignNumber(*this, digits, digitCount, width, fillChar);
+}
+
+    
+void String::appendNumber(int32_t value, uint8_t width, char fillChar) noexcept
+{
+    // Prepare all required digits.
+    char digits[12];
+    uint8_t digitCount;
+    if (value < 0) {
+        digitCount = String_prepareDigits(digits, value * -1);
+        digits[digitCount] = '-';
+        digitCount += 1;
+    } else {
+        digitCount = String_prepareDigits(digits, value);
+    }
+    if (width == 0) {
+        width = digitCount;
+    }
+    // Append the aligned string.
+    String_alignNumber(*this, digits, digitCount, width, fillChar);
+}
+    
+
 }
 

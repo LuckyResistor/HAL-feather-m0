@@ -264,27 +264,27 @@ WireMaster_SAMD21::Status WireMaster_SAMD21::initialize()
     default:
     case Interface::SerCom0:
     case Interface::SerCom0Alt:
-        clockId = GCM_SERCOM0_CORE;
+        clockId = GCLK_CLKCTRL_ID_SERCOM0_CORE_Val;
         break;
     case Interface::SerCom1:
     case Interface::SerCom1Alt:
-        clockId = GCM_SERCOM1_CORE;
+        clockId = GCLK_CLKCTRL_ID_SERCOM1_CORE_Val;
         break;
     case Interface::SerCom2:
     case Interface::SerCom2Alt:
-        clockId = GCM_SERCOM2_CORE;
+        clockId = GCLK_CLKCTRL_ID_SERCOM2_CORE_Val;
         break;
     case Interface::SerCom3:
     case Interface::SerCom3Alt:
-        clockId = GCM_SERCOM3_CORE;
+        clockId = GCLK_CLKCTRL_ID_SERCOM3_CORE_Val;
         break;
     case Interface::SerCom4:
     case Interface::SerCom4Alt:
-        clockId = GCM_SERCOM4_CORE;
+        clockId = GCLK_CLKCTRL_ID_SERCOM4_CORE_Val;
         break;
     case Interface::SerCom5:
     case Interface::SerCom5Alt:
-        clockId = GCM_SERCOM5_CORE;
+        clockId = GCLK_CLKCTRL_ID_SERCOM5_CORE_Val;
         break;
     }
     GCLK->CLKCTRL.reg =

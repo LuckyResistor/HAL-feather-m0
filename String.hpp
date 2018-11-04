@@ -155,6 +155,176 @@ public: // String Manipulation
     ///
     void append(char c) noexcept;
 
+    /// Append a value in hex representation to this string.
+    ///
+    /// @param[in] value The value to append.
+    ///
+    void appendHex(uint8_t value) noexcept;
+
+    /// Append a value in hex representation to this string.
+    ///
+    /// @param[in] value The value to append.
+    ///
+    void appendHex(uint16_t value) noexcept;
+    
+    /// Append a value in hex representation to this string.
+    ///
+    /// @param[in] value The value to append.
+    ///
+    void appendHex(uint32_t value) noexcept;
+
+    /// Append a value in binary representation to this string.
+    ///
+    /// @param[in] value The value to append.
+    ///
+    void appendBin(uint8_t value) noexcept;
+
+    /// Append a value in binary representation to this string.
+    ///
+    /// @param[in] value The value to append.
+    ///
+    void appendBin(uint16_t value) noexcept;
+
+    /// Append a value in binary representation to this string.
+    ///
+    /// @param[in] value The value to append.
+    ///
+    void appendBin(uint32_t value) noexcept;
+
+    /// Append a value as decimal number to this string.
+    ///
+    /// @param[in] value The value to append.
+    ///
+    void appendNumber(uint32_t value, uint8_t width = 0, char fillChar = ' ') noexcept;
+
+    /// Append a value as decimal number to this string.
+    ///
+    /// @param[in] value The value to append.
+    ///
+    void appendNumber(int32_t value, uint8_t width = 0, char fillChar = ' ') noexcept;
+
+public:
+    /// Create a string with the hex representation for the given value.
+    ///
+    /// @param[in] value The value to convert.
+    /// @return A hex string in the format "00".
+    ///
+    static String hex(uint8_t value) noexcept;
+
+    /// Create a string with the hex representation for the given value.
+    ///
+    /// @param[in] value The value to convert.
+    /// @return A hex string in the format "0000".
+    ///
+    static String hex(uint16_t value) noexcept;
+
+    /// Create a string with the hex representation for the given value.
+    ///
+    /// @param[in] value The value to convert.
+    /// @return A hex string in the format "00000000".
+    ///
+    static String hex(uint32_t value) noexcept;
+
+    /// Get a hex digit from a nibble.
+    ///
+    constexpr static char getHexDigit(const uint8_t value) noexcept {
+        return ((value <= 9) ? ('0'+value) : ('a'-0xa+value));
+    }
+    
+    /// Create a string with the binary representation for the given value.
+    ///
+    /// @param[in] value The value to convert.
+    /// @return A binary string in the format "00010111".
+    ///
+    static String bin(uint8_t value) noexcept;
+
+    /// Create a string with the binary representation for the given value.
+    ///
+    /// @param[in] value The value to convert.
+    /// @return A binary string in the format "0001011100010111".
+    ///
+    static String bin(uint16_t value) noexcept;
+
+    /// Create a string with the binary representation for the given value.
+    ///
+    /// @param[in] value The value to convert.
+    /// @return A binary string in the format "00010111000101110001011100010111".
+    ///
+    static String bin(uint32_t value) noexcept;
+
+    /// Create a string with a decimal representation for the given value.
+    ///
+    /// @param[in] value The value to convert.
+    /// @param[in] width The width of the field. A zero value will
+    ///     convert all digits. Any positive value will create a string with
+    ///     exact this size with the number right aligned in this string.
+    ///     Any excess digits are cut-off.
+    /// @param[in] fillChar The character to fill the field.
+    /// @return A string with the decimal number.
+    ///
+    static String number(uint32_t value, uint8_t width = 0, char fillChar = ' ') noexcept;
+
+    /// Create a string with a decimal representation for the given value.
+    ///
+    /// @param[in] value The value to convert.
+    /// @param[in] width The width of the field. A zero value will
+    ///     convert all digits. Any positive value will create a string with
+    ///     exact this size with the number right aligned in this string.
+    ///     Any excess digits are cut-off.
+    /// @param[in] fillChar The character to fill the field.
+    /// @return A string with the decimal number.
+    ///
+    static String number(int32_t value, uint8_t width = 0, char fillChar = ' ') noexcept;
+    
+public: // Overloads to solve some ambiguous calls.
+    /// Create a string with a decimal representation for the given value.
+    ///
+    inline static String number(uint8_t value, uint8_t width = 0, char fillChar = ' ') noexcept {
+        return number(static_cast<uint32_t>(value), width, fillChar);
+    }
+
+    /// Create a string with a decimal representation for the given value.
+    ///
+    inline static String number(uint16_t value, uint8_t width = 0, char fillChar = ' ') noexcept {
+        return number(static_cast<uint32_t>(value), width, fillChar);
+    }
+
+    /// Create a string with a decimal representation for the given value.
+    ///
+    inline static String number(int8_t value, uint8_t width = 0, char fillChar = ' ') noexcept {
+        return number(static_cast<int32_t>(value), width, fillChar);
+    }
+
+    /// Create a string with a decimal representation for the given value.
+    ///
+    inline static String number(int16_t value, uint8_t width = 0, char fillChar = ' ') noexcept {
+        return number(static_cast<int32_t>(value), width, fillChar);
+    }
+
+    /// Append a value as decimal number to this string.
+    ///
+    inline void appendNumber(uint8_t value, uint8_t width = 0, char fillChar = ' ') noexcept {
+        appendNumber(static_cast<uint32_t>(value), width, fillChar);
+    }
+
+    /// Append a value as decimal number to this string.
+    ///
+    inline void appendNumber(uint16_t value, uint8_t width = 0, char fillChar = ' ') noexcept {
+        appendNumber(static_cast<uint32_t>(value), width, fillChar);
+    }
+
+    /// Append a value as decimal number to this string.
+    ///
+    inline void appendNumber(int8_t value, uint8_t width = 0, char fillChar = ' ') noexcept {
+        appendNumber(static_cast<int32_t>(value), width, fillChar);
+    }
+
+    /// Append a value as decimal number to this string.
+    ///
+    inline void appendNumber(int16_t value, uint8_t width = 0, char fillChar = ' ') noexcept {
+        appendNumber(static_cast<int32_t>(value), width, fillChar);
+    }
+
 public:
     /// Check if this string is empty.
     ///
