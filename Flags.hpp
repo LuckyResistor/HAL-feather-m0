@@ -2,7 +2,7 @@
 //
 // Flags
 // ---------------------------------------------------------------------------
-// (c)2018 by Lucky Resistor. See LICENSE for details.
+// (c)2019 by Lucky Resistor. See LICENSE for details.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -158,6 +158,16 @@ public: // Helper methods.
     ///
     inline void setFlag(Enum flag) noexcept {
         _flags |= static_cast<FlagsType>(flag);
+    }
+
+    /// Change a number of flags using a mask.
+    ///
+    /// @param[in] flags The flags which shall be set.
+    ///    All other masked flags will be cleared.
+    /// @param[in] mask The mask of all changed flags.
+    ///
+    inline void changeFlags(EnumFlags flags, EnumFlags mask) {
+        _flags = ((_flags & ~mask) | flags);
     }
 
     /// Clear a flag.

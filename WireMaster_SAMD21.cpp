@@ -424,7 +424,13 @@ WireMaster_SAMD21::Status WireMaster_SAMD21::setSpeed(uint32_t frequencyHz)
     }
     // Update the local speed information.
     _speed = frequencyHz;
-    // Wait until the bus is idle.
+    // Force the bus into idle state.
+    _sercom->I2CM.STATUS.bit.BUSSTATE = cBusStateIdle;
+    // Wait for the operation.
+    if (hasError(waitForSystemOperation(_sercom))) {
+        return Status::Error;
+    }
+    // Wait until the bus is idle, this should be the case.
     if (hasError(waitForBusIdle(_sercom))) {
         return Status::Error;
     }

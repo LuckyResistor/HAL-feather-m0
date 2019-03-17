@@ -1,7 +1,0 @@
-#include "Fixed16.cpp"
-#include "GPIO_SAMD21.cpp"
-#include "String.cpp"
-#include "WireMaster_SAMD21.cpp"
-#include "DateTime.cpp"
-#include "InterruptLock_Arduino.cpp"
-#include "Timer_Arduino.cpp"

@@ -342,6 +342,12 @@ public:
     ///
     const char* getData() const noexcept;
 
+    /// Access a single character of this string.
+    ///
+    inline char getCharAt(Size index) const noexcept {
+        return _data[index];
+    }
+    
     /// Reserve memory for the string.
     ///
     /// This will reserve minimum space for a string with the size `size`.

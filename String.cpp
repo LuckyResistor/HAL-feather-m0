@@ -42,11 +42,11 @@ String::~String() noexcept
 
 
 String::String(const char *str) noexcept
-    : _data(nullptr)
+    : _length(0), _capacity(0), _data(nullptr)
 {
     _length = static_cast<Size>(std::strlen(str));
     reserve(_length);
-    std::strcpy(_data, str);
+    std::memcpy(_data, str, _length+1);
 }
 
 

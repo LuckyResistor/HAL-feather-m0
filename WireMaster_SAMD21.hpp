@@ -98,7 +98,7 @@ public: // Implement the WireMaster interface.
 
 private:
     const Interface _interface; ///< The interface to use.
-    Sercom* _sercom; ///< The link to the low level SERCOM interface.
+    Sercom *_sercom; ///< The link to the low level SERCOM interface.
     const GPIO::PinNumber _pinSDA; ///< The arduino pin number for the SDA pin.
     const GPIO::PinNumber _pinSCL; ///< The arduino pin number for the SCL pin.
     uint32_t _speed; ///< The current speed.
