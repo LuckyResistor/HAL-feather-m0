@@ -22,9 +22,11 @@ Alternatively, just copy the directory in your project, if you do not wish to us
 
 ```
 cd YourProject/
-git 
+git submodule add git@github.com:LuckyResistor/HAL-feather-m0.git src/hal
+```
 
 The file `YourProject.ino` will look like this:
+
 ```
 #include "Arduino.h"
 #include "src/Application.hpp"
