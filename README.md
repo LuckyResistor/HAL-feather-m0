@@ -4,7 +4,7 @@ This is a universal hardware access layer for the Adafruit Feather M0 platform u
 The idea of this HAL is to replace the Arduino environment with an abstraction layer, which is closer to the used hardware. This allows to make a better use of the hardware features.
 
 ## How to use this HAL
-To use this HAL, include this repository as a submodule in your project. The submodule should be a subdirectory `hal` in your Arduino project directory as shown below:
+To use this HAL, include this repository as a submodule in your project. The submodule should be a subdirectory `hal-feather-m0` in your Arduino project directory as shown below.
 
 ```
 YourProject/
@@ -12,17 +12,21 @@ YourProject/
 	src/
 		Application.hpp
 		Application.cpp
-		hal/ <-- submodule
+		hal-common/      <-- submodule
+		hal-feather-m0/  <-- submodule
 			[files]
 ```
 
+You also need the `hal-common` subdirectory, which contains hardware independent interfaces and classes.
+
 Alternatively, just copy the directory in your project, if you do not wish to use GIT for updates of this library. Still, you have to copy the directory structure from above.
 
-**The `src` subdirectory is important!** Place all your sources, except the `.ino` file in the `src` directory. All `hal` layer directories have to be placed below the `src` directory. The Arduino environment will only compile `cpp` files inside of the `src` subdirectory. If the `hal*` directories are placed outside of the `src` directory, the implementations of the are not compiled into the project.
+**The `src` subdirectory is important!** Place all your sources, except the `.ino` file in the `src` directory. All `hal-*` layer directories have to be placed below the `src` directory. The Arduino environment will only compile `cpp` files inside of the `src` subdirectory. If the `hal-*` directories are placed outside of the `src` directory, the implementations of the are not compiled into the project.
 
 ```
 cd YourProject/
-git submodule add git@github.com:LuckyResistor/HAL-feather-m0.git src/hal
+git submodule add git@github.com:LuckyResistor/HAL-common.git src/hal-common
+git submodule add git@github.com:LuckyResistor/HAL-feather-m0.git src/hal-feather-m0
 ```
 
 The file `YourProject.ino` will look like this:
@@ -61,7 +65,7 @@ Whitespace and API comments were removed to keep things compact. And the `Applic
 
 ```
 #include "Application.hpp"
-#include "hal/Timer.hpp"
+#include "hal-common/Timer.hpp"
 using lr::Timer;
 namespace yp {
 namespace Application {
