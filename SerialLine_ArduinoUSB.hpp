@@ -20,8 +20,8 @@
 //
 
 
-#include "SerialLine.hpp"
-#include "Timer.hpp"
+#include "hal-common/SerialLine.hpp"
+#include "hal-common/Timer.hpp"
 
 
 namespace lr {

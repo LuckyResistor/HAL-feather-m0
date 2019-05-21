@@ -20,7 +20,7 @@
 //
 
 
-#include "GPIO.hpp"
+#include "hal-common/GPIO.hpp"
 
 
 namespace lr {

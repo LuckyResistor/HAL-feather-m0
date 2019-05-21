@@ -21,8 +21,9 @@
 
 
 #include "GPIO_SAMD21.hpp"
-#include "Timer.hpp"
-#include "StatusTools.hpp"
+
+#include "hal-common/Timer.hpp"
+#include "hal-common/StatusTools.hpp"
 
 
 namespace lr {
