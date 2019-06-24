@@ -20,6 +20,8 @@
 #include "SerialLine_ArduinoUSB.hpp"
 
 
+#include <hal-common/Timer.hpp>
+
 #include <Arduino.h>
 
 
@@ -33,23 +35,34 @@ namespace {
 /// This allows a simple change of the used variable.
 ///
 auto &serialAccess = Serial;
-    
+
+/// The default baud rate to use. It is ignored.
+///
+const uint32_t cDefaultBaudRate = 115200;
+
+/// Initial delay waiting for a connection.
+///
+const auto cInitialWait = 2000_ms;
+
+/// Retry time after the the initial delay.
+///
+const auto cRetryWait = 5000_ms;
+
 
 }
 
     
 SerialLine_ArduinoUSB::SerialLine_ArduinoUSB()
-    : _state(State::Initialized), _initDeadline(2000_ms)
+    : _state(State::Initialized), _connectDeadline(2000_ms)
 {
 }
 
     
-SerialLine_ArduinoUSB::Status SerialLine_ArduinoUSB::initialize(uint32_t speedBaud)
+SerialLine_ArduinoUSB::Status SerialLine_ArduinoUSB::initialize()
 {
-    serialAccess.begin(speedBaud); // The baud rate is ignored.
-    serialAccess.setTimeout(100); // Maximum wait 100ms for data.
+    serialAccess.begin(cDefaultBaudRate); // The baud rate is ignored.
     _state = State::Initialized;
-    _initDeadline.restart(2000_ms); // Maximum wat 2 seconds to initialization.
+    _connectDeadline.restart(cInitialWait); // Maximum wat 3 seconds to initialization.
     return Status::Success;
 }
 
@@ -138,11 +151,19 @@ SerialLine_ArduinoUSB::Status SerialLine_ArduinoUSB::receiveBlock(uint8_t *data,
     if (!isReady()) {
         return Status::Error;
     }
-    const auto received = serialAccess.readBytesUntil(blockEndMark, data, dataSize);
+    DataSize readCount = 0;
+    int readByte;
+    do {
+        readByte = serialAccess.read();
+        if (readByte >= 0) {
+            data[readCount] = static_cast<uint8_t>(readByte);
+            readCount += 1;
+        }
+    } while (readByte > 0 && static_cast<uint8_t>(readByte) != blockEndMark && readCount < dataSize);
     if (dataReceived != nullptr) {
-        *dataReceived = received;
+        *dataReceived = readCount;
     }
-    return ((received == dataSize) ? Status::Success : Status::Partial);
+    return ((readCount == dataSize) ? Status::Success : Status::Partial);
 }
     
     
@@ -160,19 +181,35 @@ bool SerialLine_ArduinoUSB::isReady()
 {
     if (_state == State::Open) {
         return true;
-    } else if (_state == State::NotWorking) {
+    } else if (_state == State::NoConnection) {
+        if (_connectDeadline.hasTimeout()) {
+            if (serialAccess) {
+                _state = State::Open;
+                return true;
+            }
+            _connectDeadline.restart(cRetryWait);
+        }
         return false;
     } else if (_state == State::Initialized) {
         if (serialAccess) {
             _state = State::Open;
             return true;
         }
-        if (_initDeadline.hasTimeout()) {
-            // Give up.
-            _state = State::NotWorking;
+        if (_connectDeadline.hasTimeout()) {
+            // Give up for now.
+            _state = State::NoConnection;
+            _connectDeadline.restart(cRetryWait);
         }
     }
     return false;
+}
+
+
+void SerialLine_ArduinoUSB::waitUntilReady()
+{
+    while (!isReady() && _state == State::Initialized) {
+        Timer::delay(100_ms);
+    }
 }
 
 
