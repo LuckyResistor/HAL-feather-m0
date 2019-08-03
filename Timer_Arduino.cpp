@@ -32,6 +32,13 @@ Milliseconds tickMilliseconds()
 }
 
 
+void waitForNextTick()
+{
+    const auto currentValue = ::millis();
+    while (currentValue == ::millis()) {}
+}
+
+
 void delayMilliseconds(const uint32_t milliseconds)
 {
     ::delay(milliseconds);
