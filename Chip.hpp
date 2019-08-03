@@ -30,12 +30,12 @@
 
 // Define actual code from the macros to make namespaces work.
 namespace chip {
-constexpr auto gPort = PORT;
-constexpr auto gSercom0 = SERCOM0;
-constexpr auto gSercom1 = SERCOM1;
-constexpr auto gSercom2 = SERCOM2;
-constexpr auto gSercom3 = SERCOM3;
-constexpr auto gSercom4 = SERCOM4;
-constexpr auto gSercom5 = SERCOM5;
+const auto &gPort = PORT;
+const auto &gSercom0 = SERCOM0;
+const auto &gSercom1 = SERCOM1;
+const auto &gSercom2 = SERCOM2;
+const auto &gSercom3 = SERCOM3;
+const auto &gSercom4 = SERCOM4;
+const auto &gSercom5 = SERCOM5;
 }
 
