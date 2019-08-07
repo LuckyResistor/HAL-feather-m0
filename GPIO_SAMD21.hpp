@@ -33,7 +33,7 @@ namespace GPIO {
 /// functions for the pins of the chip.
 ///
 enum class Function : uint8_t {
-    Diabled = 0xff, ///< Disable multiplexing for the pin.
+    Disabled = 0xff, ///< Disable multiplexing for the pin.
     A = 0x0, ///< Function A
     B = 0x1, ///< Function B
     C = 0x2, ///< Function C

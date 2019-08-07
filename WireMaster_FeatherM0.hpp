@@ -92,7 +92,7 @@ private:
     }
 
 public:
-    inline WireMaster_FeatherM0(const Setup setup = Setup::Default)
+    inline explicit WireMaster_FeatherM0(const Setup setup = Setup::Default)
         : WireMaster_SAMD21(getInterfaceForSetup(setup), getSdaPinForSetup(setup), getSclPinForSetup(setup))
     {
     }

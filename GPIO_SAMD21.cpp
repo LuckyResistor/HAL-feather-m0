@@ -92,7 +92,7 @@ void setFunction(PinNumber pin, Function function)
 {
     auto &port = chip::gPort->Group[static_cast<uint16_t>(pin)>>5];
     const auto pinPortIndex = static_cast<uint8_t>(pin&0b11111);
-    if (function == Function::Diabled) {
+    if (function == Function::Disabled) {
         port.PINCFG[pinPortIndex].bit.PMUXEN = 0;
     } else {
         if ((pinPortIndex&1) == 0) {
