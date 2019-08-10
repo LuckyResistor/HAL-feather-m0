@@ -22,7 +22,7 @@
 
 #include "Chip.hpp"
 
-#include <hal-common/GPIO.hpp>
+#include "hal-common/GPIO.hpp"
 
 
 namespace lr {

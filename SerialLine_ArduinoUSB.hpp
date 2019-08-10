@@ -1,7 +1,5 @@
 #pragma once
 //
-// Arduino USB Serial Line
-// ---------------------------------------------------------------------------
 // (c)2019 by Lucky Resistor. See LICENSE for details.
 //
 // This program is free software; you can redistribute it and/or modify
@@ -57,6 +55,10 @@ public:
     ///
     Status initialize();
 
+    /// Check if the USB connection is ready.
+    ///
+    bool isReady();
+
     /// Wait until this serial line is ready or not available.
     ///
     /// This will wait, until the USB serial line is ready and open, or if this process runs into a timeout
@@ -77,11 +79,6 @@ public: // Implement SerialLine
     Status receive(uint8_t *data, DataSize dataSize, DataSize *dataReceived = nullptr) noexcept override;
     Status receiveBlock(uint8_t *data, DataSize dataSize, uint8_t blockEndMark, DataSize *dataReceived) noexcept override;
     Status receiveReset() noexcept override;
-    
-private:
-    /// Check if the USB connection is ready.
-    ///
-    bool isReady();
     
 private:
     State _state; ///< The current state of the USB serial.

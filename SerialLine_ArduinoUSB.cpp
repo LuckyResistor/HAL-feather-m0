@@ -1,6 +1,4 @@
 //
-// Arduino USB Serial Line
-// ---------------------------------------------------------------------------
 // (c)2018 by Lucky Resistor. See LICENSE for details.
 //
 // This program is free software; you can redistribute it and/or modify
@@ -20,7 +18,7 @@
 #include "SerialLine_ArduinoUSB.hpp"
 
 
-#include <hal-common/Timer.hpp>
+#include "hal-common/Timer.hpp"
 
 #include <Arduino.h>
 

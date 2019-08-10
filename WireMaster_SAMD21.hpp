@@ -23,7 +23,7 @@
 #include "Chip.hpp"
 #include "GPIO_SAMD21.hpp"
 
-#include <hal-common/WireMaster.hpp>
+#include "hal-common/WireMaster.hpp"
 
 
 namespace lr {

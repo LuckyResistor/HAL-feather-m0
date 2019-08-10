@@ -1,7 +1,5 @@
 #pragma once
 //
-// The GPIO abstraction layer / FeatherM0 additions
-// ---------------------------------------------------------------------------
 // (c)2018 by Lucky Resistor. See LICENSE for details.
 //
 // This program is free software; you can redistribute it and/or modify
