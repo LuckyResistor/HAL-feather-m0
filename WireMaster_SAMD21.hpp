@@ -85,8 +85,8 @@ public:
 public: // Implement the WireMaster interface.
     Status initialize() override;
     Status reset() override;
-    Status setSpeed(Speed speed) override;
-    Status setSpeed(uint32_t frequencyHz) override;
+    Status setSpeed(Speed speed, Nanoseconds riseTime) override;
+    Status setSpeed(uint32_t frequencyHz, Nanoseconds riseTime) override;
     Status writeBegin(uint8_t address) override;
     Status writeByte(uint8_t data) override;
     Status writeEndAndStop() override;
@@ -98,11 +98,21 @@ public: // Implement the WireMaster interface.
     Status readRegisterData(uint8_t address, uint8_t registerAddress, uint8_t *data, uint8_t count) override;
 
 private:
+    /// Set the baud registers based on the frequency and rise time.
+    ///
+    void setBaudRegister(uint32_t frequencyHz, Nanoseconds riseTime);
+
+    /// Read bytes after.
+    ///
+    Status readBytesAfterAcknowledge(uint8_t *data, uint8_t count);
+
+private:
     const Interface _interface; ///< The interface to use.
     Sercom *_sercom; ///< The link to the low level SERCOM interface.
     const GPIO::PinNumber _pinSDA; ///< The arduino pin number for the SDA pin.
     const GPIO::PinNumber _pinSCL; ///< The arduino pin number for the SCL pin.
-    uint32_t _speed; ///< The current speed.
+    uint32_t _frequencyHz; ///< The current speed.
+    Nanoseconds _riseTime; ///< The rise time.
 };
 
 

@@ -213,6 +213,21 @@ inline WireMaster::Status sendCommand(Sercom *sercom, Command command)
 }
 
 
+/// Send a command and acknowledge
+///
+/// @param sercom The SERCOM interface to use.
+/// @param command The command to send.
+/// @param ack
+/// @return `Success` or `Timeout`
+///
+inline WireMaster::Status sendCommandAcknowledgeAddress(Sercom *sercom, Command command, Acknowledge acknowledge)
+{
+    const uint32_t regValue = SERCOM_I2CM_CTRLB_CMD(static_cast<uint8_t>(command)) |
+        (static_cast<uint32_t>(acknowledge) << SERCOM_I2CM_CTRLB_ACKACT_Pos);
+    sercom->I2CM.CTRLB.reg = regValue;
+    return waitForSystemOperation(sercom);
+}
+
 }
 
 
@@ -222,7 +237,8 @@ WireMaster_SAMD21::WireMaster_SAMD21(Interface interface, GPIO::PinNumber pinSDA
     _interface(interface),
     _pinSDA(pinSDA),
     _pinSCL(pinSCL),
-    _speed(cDefaultSpeed100k)
+    _frequencyHz(cDefaultSpeed100k),
+    _riseTime(90_ns)
 {
     // Assign the correct interface structure.
     switch (interface) {
@@ -329,6 +345,26 @@ WireMaster_SAMD21::Status WireMaster_SAMD21::initialize()
 }
 
 
+void WireMaster_SAMD21::setBaudRegister(uint32_t frequencyHz, Nanoseconds riseTime)
+{
+    // Change the bus speed bits.
+    _sercom->I2CM.BAUD.bit.HSBAUDLOW = 0;
+    _sercom->I2CM.BAUD.bit.HSBAUD = 0;
+    _sercom->I2CM.BAUD.bit.BAUDLOW = 0;
+    // f_SCL = f_GCLK / (10 + 2*BAUD + f_GCLK * T_RISE)
+    const uint32_t halfClock = SystemCoreClock / 2;
+    _sercom->I2CM.BAUD.bit.BAUD = (halfClock / frequencyHz) - 5 -
+                                  (halfClock * static_cast<uint32_t>(riseTime.ticks()) / 1000000000);
+    if (frequencyHz <= 400000) {
+        _sercom->I2CM.CTRLA.bit.SPEED = 0;
+    } else if (frequencyHz <= 1000000) {
+        _sercom->I2CM.CTRLA.bit.SPEED = 1;
+    } else {
+        _sercom->I2CM.CTRLA.bit.SPEED = 2;
+    }
+}
+
+
 WireMaster_SAMD21::Status WireMaster_SAMD21::reset()
 {
     // Start the software reset.
@@ -354,7 +390,7 @@ WireMaster_SAMD21::Status WireMaster_SAMD21::reset()
         return Status::Error;
     }
     // Set the baudrate.
-    _sercom->I2CM.BAUD.bit.BAUD = SystemCoreClock/(2*cDefaultSpeed100k)-1;
+    setBaudRegister(_frequencyHz, _riseTime);
     // Enable the SERCOM interface.
     _sercom->I2CM.CTRLA.bit.ENABLE = 1;
     // Wait for synchronization.
@@ -374,7 +410,7 @@ WireMaster_SAMD21::Status WireMaster_SAMD21::reset()
 }
 
 
-WireMaster_SAMD21::Status WireMaster_SAMD21::setSpeed(Speed speed)
+WireMaster_SAMD21::Status WireMaster_SAMD21::setSpeed(Speed speed, Nanoseconds riseTime)
 {
     uint32_t frequencyHz;
     switch (speed) {
@@ -385,14 +421,14 @@ WireMaster_SAMD21::Status WireMaster_SAMD21::setSpeed(Speed speed)
     default:
         return Status::NotSupported;
     }
-    return setSpeed(frequencyHz);
+    return setSpeed(frequencyHz, riseTime);
 }
 
 
-WireMaster_SAMD21::Status WireMaster_SAMD21::setSpeed(uint32_t frequencyHz)
+WireMaster_SAMD21::Status WireMaster_SAMD21::setSpeed(uint32_t frequencyHz, Nanoseconds riseTime)
 {
     // Ignore calls which do not actually change the frequency.
-    if (_speed == frequencyHz) {
+    if (_frequencyHz == frequencyHz && _riseTime == riseTime) {
         return Status::Success;
     }
     // Wait until the bus is idle.
@@ -405,16 +441,7 @@ WireMaster_SAMD21::Status WireMaster_SAMD21::setSpeed(uint32_t frequencyHz)
     if (hasError(waitForSyncEnable(_sercom))) {
         return Status::Error;
     }
-    // Change the baudrate.
-    _sercom->I2CM.BAUD.bit.BAUD = SystemCoreClock/(2*frequencyHz)-1;
-    // Change the bus speed bits.
-    if (frequencyHz <= 400000) {
-        _sercom->I2CM.CTRLA.bit.SPEED = 0;
-    } else if (frequencyHz <= 1000000) {
-        _sercom->I2CM.CTRLA.bit.SPEED = 1;
-    } else {
-        _sercom->I2CM.CTRLA.bit.SPEED = 2;
-    }
+    setBaudRegister(frequencyHz, riseTime);
     // Enable the SERCOM interface.
     _sercom->I2CM.CTRLA.bit.ENABLE = 1;
     // Wait for synchronization.
@@ -422,7 +449,8 @@ WireMaster_SAMD21::Status WireMaster_SAMD21::setSpeed(uint32_t frequencyHz)
         return Status::Error;
     }
     // Update the local speed information.
-    _speed = frequencyHz;
+    _frequencyHz = frequencyHz;
+    _riseTime = riseTime;
     // Force the bus into idle state.
     _sercom->I2CM.STATUS.bit.BUSSTATE = cBusStateIdle;
     // Wait for the operation.
@@ -552,13 +580,21 @@ WireMaster_SAMD21::Status WireMaster_SAMD21::readBytes(uint8_t address, uint8_t 
     if (count == 0 || data == nullptr) return Status::Error;
     // Wait for the bus to be ready.
     if (hasError(status = waitUntilReady(_sercom))) return status;
-    // Send the address and wait for acknowledge + bit 1 = 1 for read.
-    const uint8_t addressData = (address<<1)|static_cast<uint8_t>(0x01);
     // Make sure acknowledge is set.
     if (hasError(status = setAcknowledge(_sercom, Acknowledge::Yes))) return status;
-    // Send the address and write bit.
+    // Send the address and wait for acknowledge + bit 1 = 1 for read.
+    const uint8_t addressData = (address<<1u)|static_cast<uint8_t>(0x01u);
+    // Send the address.
     _sercom->I2CM.ADDR.bit.ADDR = addressData;
     if (hasError(status = waitForSlaveOnBus(_sercom))) return status;
+    // Start reading the bytes.
+    return readBytesAfterAcknowledge(data, count);
+}
+
+
+WireMaster::Status WireMaster_SAMD21::readBytesAfterAcknowledge(uint8_t *data, uint8_t count)
+{
+    WireMaster::Status status;
     // Check if an acknowledge was received.
     if (_sercom->I2CM.STATUS.bit.RXNACK) {
         // No... send a stop.
@@ -601,10 +637,17 @@ WireMaster_SAMD21::Status WireMaster_SAMD21::readRegisterData(uint8_t address, u
     if (hasError(status = writeBegin(address))) return status;
     // Write a byte with the register address.
     if (hasError(status = writeByte(registerAddress))) return status;
-    // End the operation and repeat the start condition.
-    if (hasError(status = writeEndAndStart())) return status;
-    // Read the data from the selected register.
-    return readBytes(address, data, count);
+    // Wait for the bus to be ready.
+    if (hasError(status = waitUntilReady(_sercom))) return status;
+    // Make sure acknowledge is set.
+    if (hasError(status = setAcknowledge(_sercom, Acknowledge::Yes))) return status;
+    // Send the address and wait for acknowledge + bit 1 = 1 for read.
+    const uint8_t addressData = (address<<1u)|static_cast<uint8_t>(0x01u);
+    // Send the address.
+    _sercom->I2CM.ADDR.bit.ADDR = addressData;
+    if (hasError(status = waitForSlaveOnBus(_sercom))) return status;
+    // Start reading the bytes.
+    return readBytesAfterAcknowledge(data, count);
 }
 
 
