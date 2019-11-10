@@ -1,15 +1,19 @@
 # Adafruit Feather M0 Hardware Access Layer
-This is a universal hardware access layer for the Adafruit Feather M0 platform using the Arduino IDE.
 
-The idea of this HAL is to replace the Arduino environment with an abstraction layer, which is closer to the used hardware. This allows to make a better use of the hardware features.
+This is an universal hardware access layer for the Adafruit Feather M0 platform.
+
+The idea of this HAL is to replace the Arduino environment with an abstraction layer, closer to the used hardware. Therefore the hardware can be used in a more efficient and direct way, but provide a comfortable set of C++ functions and classes to work with the platform. 
 
 ## How to use this HAL
-To use this HAL, include this repository as a submodule in your project. The submodule should be a subdirectory `hal-feather-m0` in your Arduino project directory as shown below.
+
+To use this HAL, you need the `HAL-toolchain`. Follow the instructions in this repository to setup the toolchain correctly. Next, include this repository as a submodule in your project. The submodule should be the subdirectory `src/hal-feather-m0` in your project.
 
 ```
 YourProject/
-	YourProject.ino
+    CMakeLists.txt
+    hal-toolchain/
 	src/
+        CoreFunctions.cpp
 		Application.hpp
 		Application.cpp
 		hal-common/      <-- submodule
@@ -19,39 +23,17 @@ YourProject/
 
 You also need the `hal-common` subdirectory, which contains hardware independent interfaces and classes.
 
-Alternatively, just copy the directory in your project, if you do not wish to use GIT for updates of this library. Still, you have to copy the directory structure from above.
-
-**The `src` subdirectory is important!** Place all your sources, except the `.ino` file in the `src` directory. All `hal-*` layer directories have to be placed below the `src` directory. The Arduino environment will only compile `cpp` files inside of the `src` subdirectory. If the `hal-*` directories are placed outside of the `src` directory, the implementations of the are not compiled into the project.
-
 ```
 cd YourProject/
 git submodule add git@github.com:LuckyResistor/HAL-common.git src/hal-common
 git submodule add git@github.com:LuckyResistor/HAL-feather-m0.git src/hal-feather-m0
 ```
 
-The file `YourProject.ino` will look like this:
-
-```
-#include "Arduino.h"
-#include "src/Application.hpp"
-
-void setup()
-{
-    yp::Application::setup();
-}
-
-void loop()
-{
-    yp::Application::loop();
-}
-```
-
 Assuming, you use the namespace `yp` for your application. The file `Application.hpp` will look like this:
 
-```
+```cpp
 #pragma once
 // [Copyright...]
-#include <Arduino.h>
 namespace yp {
 namespace Application {
 void setup();
@@ -63,7 +45,7 @@ void loop();
 
 Whitespace and API comments were removed to keep things compact. And the `Application.cpp` will look like this:
 
-```
+```cpp
 #include "Application.hpp"
 #include "hal-common/Timer.hpp"
 using lr::Timer;
@@ -83,11 +65,24 @@ void loop()
 }
 ```
 
+The file `CoreFunctions.cpp` contains the link to your `Application` namespace and is just a simple wrapper around the `setup()` and `loop()` functions.
+
+```cpp
+#include "Application.hpp"
+include "hal-common/CoreFunctions.h"
+void setup() {
+    lr::Application::setup();
+}
+void loop() {
+    lr::Application::loop();
+}
+```
+
 ## Status
 This library is a work in progress. It is published merely as an inspiration and in the hope it may be useful. 
 
 ## License
-Copyright 2019 by Lucky Resistor.
+Copyright (c)2019 by Lucky Resistor.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

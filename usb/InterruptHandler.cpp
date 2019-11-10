@@ -1,6 +1,5 @@
-#pragma once
 //
-// (c)2018 by Lucky Resistor. See LICENSE for details.
+// (c)2019 by Lucky Resistor. See LICENSE for details.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,24 +15,32 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#pragma once
+#include "InterruptHandler.hpp"
 
-// Workaround for Atmel header include to avoid unnecessary warnings
-#undef _U
-#undef _L
-#undef LITTLE_ENDIAN
 
-// Include the header for the chip you use here.
-#include "sam.h"
+namespace lr::usb {
 
-// Define actual code from the macros to make namespaces work.
-namespace chip {
-Port* const gPort = PORT;
-Sercom* const gSercom0 = SERCOM0;
-Sercom* const gSercom1 = SERCOM1;
-Sercom* const gSercom2 = SERCOM2;
-Sercom* const gSercom3 = SERCOM3;
-Sercom* const gSercom4 = SERCOM4;
-Sercom* const gSercom5 = SERCOM5;
+
+static InterruptCallback gInterruptCallback0 = nullptr;
+
+
+void setInterruptCallback(const uint8_t deviceIndex, const InterruptCallback callback)
+{
+    if (deviceIndex == 0) {
+        gInterruptCallback0 = callback;
+    }
+}
+
+
+}
+
+
+/// The USB interrupt handler.
+///
+void USB_Handler()
+{
+    if (lr::usb::gInterruptCallback0 != nullptr) {
+        lr::usb::gInterruptCallback0();
+    }
 }
 

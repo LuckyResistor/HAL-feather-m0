@@ -25,16 +25,17 @@
 namespace lr {
 
 
-/// This is a wrapper around the Arduino USB serial line implementation.
+namespace usb {
+class USBDeviceClass;
+}
+
+
+/// This is a simple wrapper around USB serial line implementation.
 ///
-/// This wrapper allows using the `SerialLine` with the Arduino USB serial line, implemented as `SerialUSB`. The
-/// serial line is initialized in a non blocking way. Writing and reading from the line is available, as soon the line
-/// is ready. Therefore, it is advised to use a buffer around this implementation to bridge the initialization time.
+/// It is advised to use a larger buffer around this wrapper, because it operates directly on the relatively
+/// small USB serial line buffer.
 ///
-/// This wrapper does not solve the main problem of the Arduino USB implementation. If the USB cable is removed
-/// after a successful connection, the implementation will block forever.
-///
-class SerialLine_ArduinoUSB : public SerialLine
+class SerialLine_USB : public SerialLine
 {
 public:
     enum class State : uint8_t {
@@ -46,7 +47,7 @@ public:
 public:
     /// Create a new instance of the serial line wrapper.
     ///
-    SerialLine_ArduinoUSB();
+    SerialLine_USB(usb::USBDeviceClass *usbDevice);
     
 public:
     /// Initialize the USB serial line.
@@ -81,6 +82,7 @@ public: // Implement SerialLine
     Status receiveReset() noexcept override;
     
 private:
+    usb::USBDeviceClass *_usbDevice; ///< The USB device to use.
     State _state; ///< The current state of the USB serial.
     Timer::Deadline _connectDeadline; ///< The timeout waiting for a USB connection.
 };

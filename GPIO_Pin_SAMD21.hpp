@@ -25,8 +25,7 @@
 #include "hal-common/GPIO.hpp"
 
 
-namespace lr {
-namespace GPIO {
+namespace lr::GPIO {
 
 
 /// The base class for static pin access.
@@ -196,6 +195,5 @@ using PinPB30 = PinBase<0x3e>;
 using PinPB31 = PinBase<0x3f>;
 
 
-}
 }
 

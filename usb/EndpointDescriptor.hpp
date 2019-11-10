@@ -1,5 +1,6 @@
+#pragma once
 //
-// (c)2018 by Lucky Resistor. See LICENSE for details.
+// (c)2019 by Lucky Resistor. See LICENSE for details.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,26 +16,44 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "hal-common/InterruptLock.hpp"
 
 
-#include <Arduino.h>
+#include "DescriptorType.hpp"
+
+#include <cstdint>
 
 
-namespace lr {
+namespace lr::usb {
 
 
-InterruptLock::InterruptLock()
+/// Endpoint descriptor
+///
+struct EndpointDescriptor
 {
-    noInterrupts();
-}
+    uint8_t len; // 7
+    DescriptorType dtype;
+    uint8_t addr;
+    uint8_t attr;
+    uint16_t packetSize;
+    uint8_t interval;
+
+    static constexpr EndpointDescriptor create(
+        uint8_t addr,
+        uint8_t attr,
+        uint16_t packetSize,
+        uint8_t interval)
+    {
+        return {
+            7,
+            DescriptorType::Endpoint,
+            addr,
+            attr,
+            packetSize,
+            interval
+        };
+    }
+} __attribute__((packed));
 
 
-InterruptLock::~InterruptLock()
-{
-    interrupts();
-}
-    
-    
 }
 

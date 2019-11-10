@@ -21,8 +21,7 @@
 #include "hal-common/GPIO.hpp"
 
 
-namespace lr {
-namespace GPIO {
+namespace lr::GPIO {
 
 
 /// The function for a pin.
@@ -151,6 +150,5 @@ inline bool getState(Port port) {
 }
 
 
-}
 }
 

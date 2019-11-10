@@ -18,32 +18,17 @@
 //
 
 
-#include "GPIO_Pin_SAMD21.hpp"
+#include "hal-common/Reset.hpp"
 
 
-namespace lr::GPIO {
+namespace lr::Reset {
 
 
-using PinA0     = PinPA02;
-using PinA1     = PinPB08;
-using PinA2     = PinPB09;
-using PinA3     = PinPA04;
-using PinA4     = PinPA05;
-using PinA5     = PinPB02;
-using PinSCK    = PinPB11;
-using PinMOSI   = PinPB10;
-using PinMISO   = PinPA12;
-using PinRX     = PinPA11;
-using PinTX     = PinPA10;
-using PinSDA    = PinPA22;
-using PinSCL    = PinPA23;
-using Pin5      = PinPA15;
-using Pin6      = PinPA20;
-using Pin9      = PinPA07;
-using Pin10     = PinPA18;
-using Pin11     = PinPA16;
-using Pin12     = PinPA19;
-using Pin13     = PinPA17;
+/// Handle the erase delay ticks.
+///
+/// This function is called from the SysTick handler in `Timer.cpp`.
+///
+void eraseTick();
 
 
 }

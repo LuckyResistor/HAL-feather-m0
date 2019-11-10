@@ -18,11 +18,10 @@
 #include "GPIO_SAMD21.hpp"
 
 
-#include "Chip.hpp"
+#include "hal-core/Chip.hpp"
 
 
-namespace lr {
-namespace GPIO {
+namespace lr::GPIO {
 
 
 Status initialize()
@@ -105,6 +104,5 @@ void setFunction(PinNumber pin, Function function)
 }
 
 
-}
 }
 

@@ -20,9 +20,9 @@
 //
 
 
-#include "Chip.hpp"
 #include "GPIO_SAMD21.hpp"
 
+#include "hal-core/Chip.hpp"
 #include "hal-common/WireMaster.hpp"
 
 

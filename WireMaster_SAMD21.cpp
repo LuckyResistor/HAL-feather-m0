@@ -19,6 +19,7 @@
 
 
 #include "GPIO_SAMD21.hpp"
+#include "ClockCycles.hpp"
 
 #include "hal-common/Timer.hpp"
 #include "hal-common/StatusTools.hpp"
@@ -352,7 +353,7 @@ void WireMaster_SAMD21::setBaudRegister(uint32_t frequencyHz, Nanoseconds riseTi
     _sercom->I2CM.BAUD.bit.HSBAUD = 0;
     _sercom->I2CM.BAUD.bit.BAUDLOW = 0;
     // f_SCL = f_GCLK / (10 + 2*BAUD + f_GCLK * T_RISE)
-    const uint32_t halfClock = SystemCoreClock / 2;
+    const uint32_t halfClock = ClockCycles::cSystemCoreClock / 2;
     _sercom->I2CM.BAUD.bit.BAUD = (halfClock / frequencyHz) - 5 -
                                   (halfClock * static_cast<uint32_t>(riseTime.ticks()) / 1000000000);
     if (frequencyHz <= 400000) {

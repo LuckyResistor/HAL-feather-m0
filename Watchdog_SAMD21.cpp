@@ -18,7 +18,7 @@
 #include "hal-common/Watchdog.hpp"
 
 
-#include "Chip.hpp"
+#include "hal-core/Chip.hpp"
 
 
 namespace lr {

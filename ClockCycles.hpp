@@ -18,32 +18,36 @@
 //
 
 
-#include "GPIO_Pin_SAMD21.hpp"
+#include <cstdint>
 
 
-namespace lr::GPIO {
+namespace lr::ClockCycles {
 
 
-using PinA0     = PinPA02;
-using PinA1     = PinPB08;
-using PinA2     = PinPB09;
-using PinA3     = PinPA04;
-using PinA4     = PinPA05;
-using PinA5     = PinPB02;
-using PinSCK    = PinPB11;
-using PinMOSI   = PinPB10;
-using PinMISO   = PinPA12;
-using PinRX     = PinPA11;
-using PinTX     = PinPA10;
-using PinSDA    = PinPA22;
-using PinSCL    = PinPA23;
-using Pin5      = PinPA15;
-using Pin6      = PinPA20;
-using Pin9      = PinPA07;
-using Pin10     = PinPA18;
-using Pin11     = PinPA16;
-using Pin12     = PinPA19;
-using Pin13     = PinPA17;
+/// The system core clock for the platform.
+///
+constexpr uint32_t cSystemCoreClock = 48'000'000ul;
+
+
+/// Get the number of clocks per microsecond.
+///
+constexpr uint32_t getPerMicrosecond() {
+    return (cSystemCoreClock / 1'000'000lu);
+}
+
+
+/// Get the number of microseconds for a given number of clock cycles.
+///
+constexpr uint32_t toMicroseconds(uint32_t clockCycles) {
+    return ((clockCycles * 1000ul) / (cSystemCoreClock / 1000ul));
+}
+
+
+/// Get the number of clock cycles for the given number of microseconds.
+///
+constexpr uint32_t fromMicroseconds(uint32_t microSeconds) {
+    return (microSeconds * (cSystemCoreClock / 1000000ul));
+}
 
 
 }

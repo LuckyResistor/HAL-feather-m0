@@ -1,5 +1,6 @@
+#pragma once
 //
-// (c)2018 by Lucky Resistor. See LICENSE for details.
+// (c)2019 by Lucky Resistor. See LICENSE for details.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,40 +16,28 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "hal-common/Timer.hpp"
 
 
-#include <Arduino.h>
+#include "DescriptorType.hpp"
 
 
-namespace lr {
-namespace Timer {
+namespace lr::usb {
 
 
-Milliseconds tickMilliseconds()
+/// ACM functional descriptor
+///
+struct ACMFunctionalDescriptor
 {
-    return Milliseconds(::millis());
-}
+    uint8_t len; // 4
+    DescriptorType dtype; // 0x24
+    uint8_t subtype; // 1
+    uint8_t bmCapabilities;
 
-
-void waitForNextTick()
-{
-    const auto currentValue = ::millis();
-    while (currentValue == ::millis()) {}
-}
-
-
-void delayMilliseconds(const uint32_t milliseconds)
-{
-    ::delay(milliseconds);
-}
-
-
-void delayMicroseconds(const uint32_t microseconds)
-{
-    ::delayMicroseconds(microseconds);
-}
+    static constexpr ACMFunctionalDescriptor create(uint8_t subtype, uint8_t bmCapabilities) {
+        return {4, DescriptorType::AcmFunctional, subtype, bmCapabilities };
+    }
+} __attribute__((packed));
 
 
 }
-}
+

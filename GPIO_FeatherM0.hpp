@@ -47,7 +47,12 @@ enum class FeatherM0 : PinNumber {
     P10    = static_cast<PinNumber>(Port::PA18),
     P11    = static_cast<PinNumber>(Port::PA16),
     P12    = static_cast<PinNumber>(Port::PA19),
-    P13    = static_cast<PinNumber>(Port::PA17)
+    P13    = static_cast<PinNumber>(Port::PA17),
+    RXLED  = static_cast<PinNumber>(Port::PB03),
+    TXLED  = static_cast<PinNumber>(Port::PA27),
+    UsbEn  = static_cast<PinNumber>(Port::PA28),
+    UsbDm  = static_cast<PinNumber>(Port::PA24),
+    UsbDp  = static_cast<PinNumber>(Port::PA25),
 };
 
     
@@ -55,6 +60,12 @@ enum class FeatherM0 : PinNumber {
 ///
 inline Status setMode(FeatherM0 port, Mode mode, Pull pull = Pull::None) {
     return setMode(static_cast<PinNumber>(port), mode, pull);
+}
+
+/// Wrapper for `setFunction` to accept feather names.
+///
+inline void setFunction(FeatherM0 port, Function function) {
+    setFunction(static_cast<PinNumber>(port), function);
 }
 
 /// Wrapper to `getState` to accept feather names.

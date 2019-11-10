@@ -1,6 +1,5 @@
-#pragma once
 //
-// (c)2019 by Lucky Resistor. See LICENSE for details.
+// (c)2018 by Lucky Resistor. See LICENSE for details.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,35 +15,26 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
+#include "hal-common/InterruptLock.hpp"
 
 
-#include "GPIO_Pin_SAMD21.hpp"
+#include "hal-core/Chip.hpp"
 
 
-namespace lr::GPIO {
+namespace lr {
 
 
-using PinA0     = PinPA02;
-using PinA1     = PinPB08;
-using PinA2     = PinPB09;
-using PinA3     = PinPA04;
-using PinA4     = PinPA05;
-using PinA5     = PinPB02;
-using PinSCK    = PinPB11;
-using PinMOSI   = PinPB10;
-using PinMISO   = PinPA12;
-using PinRX     = PinPA11;
-using PinTX     = PinPA10;
-using PinSDA    = PinPA22;
-using PinSCL    = PinPA23;
-using Pin5      = PinPA15;
-using Pin6      = PinPA20;
-using Pin9      = PinPA07;
-using Pin10     = PinPA18;
-using Pin11     = PinPA16;
-using Pin12     = PinPA19;
-using Pin13     = PinPA17;
+InterruptLock::InterruptLock()
+{
+    __disable_irq();
+}
 
 
+InterruptLock::~InterruptLock()
+{
+    __enable_irq();
+}
+    
+    
 }
 

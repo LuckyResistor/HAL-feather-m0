@@ -18,33 +18,28 @@
 //
 
 
-#include "GPIO_Pin_SAMD21.hpp"
+#include "InterfaceDescriptor.hpp"
+#include "EndpointDescriptor.hpp"
 
 
-namespace lr::GPIO {
+namespace lr::usb {
 
 
-using PinA0     = PinPA02;
-using PinA1     = PinPB08;
-using PinA2     = PinPB09;
-using PinA3     = PinPA04;
-using PinA4     = PinPA05;
-using PinA5     = PinPB02;
-using PinSCK    = PinPB11;
-using PinMOSI   = PinPB10;
-using PinMISO   = PinPA12;
-using PinRX     = PinPA11;
-using PinTX     = PinPA10;
-using PinSDA    = PinPA22;
-using PinSCL    = PinPA23;
-using Pin5      = PinPA15;
-using Pin6      = PinPA20;
-using Pin9      = PinPA07;
-using Pin10     = PinPA18;
-using Pin11     = PinPA16;
-using Pin12     = PinPA19;
-using Pin13     = PinPA17;
+const auto MSC_SUBCLASS_SCSI = 0x06;
+const auto MSC_PROTOCOL_BULK_ONLY = 0x50;
+
+const auto MSC_RESET = 0xFF;
+const auto MSC_GET_MAX_LUN = 0xFE;
+
+
+/// MSC descriptor
+///
+struct MSCDescriptor
+{
+    InterfaceDescriptor msc;
+    EndpointDescriptor in;
+    EndpointDescriptor out;
+} __attribute__((packed));
 
 
 }
-

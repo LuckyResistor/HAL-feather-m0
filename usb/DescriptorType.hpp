@@ -18,32 +18,26 @@
 //
 
 
-#include "GPIO_Pin_SAMD21.hpp"
+#include <cstdint>
 
 
-namespace lr::GPIO {
+namespace lr::usb {
 
 
-using PinA0     = PinPA02;
-using PinA1     = PinPB08;
-using PinA2     = PinPB09;
-using PinA3     = PinPA04;
-using PinA4     = PinPA05;
-using PinA5     = PinPB02;
-using PinSCK    = PinPB11;
-using PinMOSI   = PinPB10;
-using PinMISO   = PinPA12;
-using PinRX     = PinPA11;
-using PinTX     = PinPA10;
-using PinSDA    = PinPA22;
-using PinSCL    = PinPA23;
-using Pin5      = PinPA15;
-using Pin6      = PinPA20;
-using Pin9      = PinPA07;
-using Pin10     = PinPA18;
-using Pin11     = PinPA16;
-using Pin12     = PinPA19;
-using Pin13     = PinPA17;
+/// The descriptor type.
+///
+enum class DescriptorType : uint8_t {
+    Device = 1,
+    Configuration = 2,
+    String = 3,
+    Interface = 4,
+    Endpoint = 5,
+    InterfaceAssociation = 11,
+    CdcCsInterface = 0x24,
+    CmFunctional = 0x24,
+    AcmFunctional = 0x24,
+    CdcCsEndpoint = 0x25,
+};
 
 
 }
